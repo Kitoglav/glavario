@@ -1,2 +1,2 @@
-# wowitemizer
+# Glavario
 Glavario Application
