@@ -3,7 +3,10 @@ package com.kitoglav.glavario.controller;
 import com.kitoglav.glavario.jpa.models.Comment;
 import com.kitoglav.glavario.jpa.models.Post;
 import com.kitoglav.glavario.rest.ApiResponseException;
+import com.kitoglav.glavario.rest.dtos.CommentDto;
 import com.kitoglav.glavario.rest.dtos.CommentRequestDto;
+import com.kitoglav.glavario.rest.dtos.PostDto;
+import com.kitoglav.glavario.rest.dtos.PostRequestDto;
 import com.kitoglav.glavario.services.FeedService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -22,8 +25,6 @@ import java.util.Map;
 @RestController
 @ControllerAdvice
 @RequestMapping("/api/feed")
-
-//TODO: replace all responses from JPA entities to DTOs
 public class FeedController {
     private final FeedService feedService;
 
@@ -32,23 +33,23 @@ public class FeedController {
     }
 
     @GetMapping("/post/{id}")
-    private ResponseEntity<Post> getPost(@PathVariable long id) {
-        return ResponseEntity.ofNullable(feedService.getPost(id).orElse(null));
+    private ResponseEntity<PostDto> getPost(@PathVariable long id) {
+        return ResponseEntity.ofNullable(feedService.getPost(id).map(Post::convert).orElse(null));
     }
 
     @GetMapping("/post/{id}/comments")
-    private ResponseEntity<Page<Comment>> getComments(@PathVariable long id, @PageableDefault(sort = "postTime", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(feedService.getCommentsFor(id, pageable));
+    private ResponseEntity<Page<CommentDto>> getComments(@PathVariable long id, @PageableDefault(sort = "postTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(feedService.getCommentsFor(id, pageable).map(Comment::convert));
     }
 
     @PostMapping("/post")
-    private ResponseEntity<Post> addPost(@RequestBody String content) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(feedService.addPost(content));
+    private ResponseEntity<PostDto> addPost(@Valid @RequestBody PostRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(feedService.addPost(request.getContent()).convert());
     }
 
     @PostMapping("/comment")
-    private ResponseEntity<Comment> addComment(@Valid @RequestBody CommentRequestDto request) {
-        return feedService.addCommentTo(request.getId(), request.getContent()).map(comment -> ResponseEntity.status(HttpStatus.CREATED).body(comment)).orElseThrow(() -> new ApiResponseException(HttpStatus.NOT_FOUND, "Пост с ID: {%d} не существует".formatted(request.getId())));
+    private ResponseEntity<CommentDto> addComment(@Valid @RequestBody CommentRequestDto request) {
+        return feedService.addCommentTo(request.getId(), request.getContent()).map(Comment::convert).map(comment -> ResponseEntity.status(HttpStatus.CREATED).body(comment)).orElseThrow(() -> new ApiResponseException(HttpStatus.NOT_FOUND, "Пост с ID: {%d} не существует".formatted(request.getId())));
     }
 
     @ExceptionHandler(value = ApiResponseException.class)
