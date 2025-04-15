@@ -18,9 +18,4 @@ public class ApiResponseException extends RuntimeException implements ErrorRespo
     public ProblemDetail getBody() {
         return ProblemDetail.forStatusAndDetail(statusCode, message);
     }
-
-    @Override
-    public String getTypeMessageCode() {
-        return ErrorResponse.super.getTypeMessageCode();
-    }
 }
