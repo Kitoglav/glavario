@@ -1,7 +1,8 @@
 package com.kitoglav.glavario.jpa.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.kitoglav.glavario.ApplicationConstants;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,12 +21,12 @@ public class Comment {
 
     @Column(nullable = false)
     private Timestamp postTime;
-    @Column(nullable = false, length = 250)
+    @Column(nullable = false, length = ApplicationConstants.COMMENT_MAX_LENGTH)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postId", nullable = false)
-    @JsonBackReference
+    @JsonIgnore
     private Post parentPost;
 
 }

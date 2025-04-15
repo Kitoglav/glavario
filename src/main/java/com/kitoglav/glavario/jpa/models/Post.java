@@ -1,15 +1,15 @@
 package com.kitoglav.glavario.jpa.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.kitoglav.glavario.ApplicationConstants;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -22,12 +22,12 @@ public class Post {
     private long id;
     @Column(nullable = false)
     private Timestamp postTime;
-    @Column(nullable = false, length = 2500)
+    @Column(nullable = false, length = ApplicationConstants.POST_MAX_LENGTH)
     private String content;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentPost", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("parentPost")
-    private Set<Comment> comments;
+    @JsonIgnore
+    private List<Comment> comments = new ArrayList<>();
 
     public void addComment(Comment comment) {
         comments.add(comment);
