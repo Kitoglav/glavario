@@ -1,4 +1,4 @@
-package com.kitoglav.glavario.rest.dtos;
+package com.kitoglav.glavario.rest;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

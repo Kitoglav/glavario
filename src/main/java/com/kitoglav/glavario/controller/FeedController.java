@@ -2,7 +2,7 @@ package com.kitoglav.glavario.controller;
 
 import com.kitoglav.glavario.jpa.models.Comment;
 import com.kitoglav.glavario.jpa.models.Post;
-import com.kitoglav.glavario.rest.dtos.ApiResponseException;
+import com.kitoglav.glavario.rest.ApiResponseException;
 import com.kitoglav.glavario.rest.dtos.CommentRequestDto;
 import com.kitoglav.glavario.services.FeedService;
 import jakarta.validation.Valid;
