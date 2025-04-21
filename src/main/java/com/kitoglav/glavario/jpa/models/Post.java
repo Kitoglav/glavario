@@ -25,6 +25,8 @@ public class Post implements IJpaToDto<PostDto> {
     private String content;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private User user;
 
     public void addComment(Comment comment) {
         comments.add(comment);

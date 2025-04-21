@@ -1,7 +1,5 @@
 package com.kitoglav.glavario.jpa.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.kitoglav.glavario.ApplicationConstants;
 import com.kitoglav.glavario.api.IJpaToDto;
 import com.kitoglav.glavario.rest.dtos.CommentDto;
@@ -28,6 +26,9 @@ public class Comment implements IJpaToDto<CommentDto> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postId", nullable = false)
     private Post parentPost;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private User user;
 
     @Override
     public CommentDto convert() {

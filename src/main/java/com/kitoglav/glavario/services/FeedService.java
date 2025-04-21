@@ -4,6 +4,7 @@ import com.kitoglav.glavario.jpa.models.Comment;
 import com.kitoglav.glavario.jpa.models.Post;
 import com.kitoglav.glavario.jpa.repository.CommentRepository;
 import com.kitoglav.glavario.jpa.repository.PostRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +16,10 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class FeedService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
-
-    public FeedService(PostRepository postRepository, CommentRepository commentRepository) {
-        this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
-    }
 
     @Transactional
     public Post addPost(String content) {
@@ -43,17 +40,17 @@ public class FeedService {
         });
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<Comment> getCommentsFor(long postId, Pageable pageable) {
         return commentRepository.findByParentPostId(postId, pageable);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<Post> getPosts(int page, int count) {
         return postRepository.findAll(PageRequest.of(page, count));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<Post> getPost(long id) {
         return postRepository.findById(id);
     }

@@ -9,6 +9,7 @@ import com.kitoglav.glavario.rest.dtos.PostDto;
 import com.kitoglav.glavario.rest.dtos.PostRequestDto;
 import com.kitoglav.glavario.services.FeedService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,15 +23,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @RestController
 @ControllerAdvice
 @RequestMapping("/api/feed")
 public class FeedController {
     private final FeedService feedService;
-
-    public FeedController(FeedService feedService) {
-        this.feedService = feedService;
-    }
 
     @GetMapping("/post/{id}")
     private ResponseEntity<PostDto> getPost(@PathVariable long id) {
