@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ImportResource;
 public class GlavarioApplication {
 
     public static void main(String[] args) {
-        var context = SpringApplication.run(GlavarioApplication.class, args);
+        SpringApplication.run(GlavarioApplication.class, args);
     }
 
 }
