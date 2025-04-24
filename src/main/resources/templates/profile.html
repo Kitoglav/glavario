@@ -1,0 +1,6 @@
+<div th:if="${auth}">
+    <p>Welcome, <span th:text="${username}"></span></p>
+    <p>Your roles:
+        <span th:each="role : ${roles}" th:text="${role.authority} + ' '"></span>
+    </p>
+</div>
