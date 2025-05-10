@@ -2,6 +2,8 @@ package com.kitoglav.glavario.controller;
 
 import com.kitoglav.glavario.jpa.models.Comment;
 import com.kitoglav.glavario.jpa.models.Post;
+import com.kitoglav.glavario.jpa.models.user.User;
+import com.kitoglav.glavario.jwt.JwtComponent;
 import com.kitoglav.glavario.rest.ApiResponseException;
 import com.kitoglav.glavario.rest.dtos.CommentDto;
 import com.kitoglav.glavario.rest.dtos.CommentRequestDto;
@@ -16,18 +18,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/feed")
 public class FeedController {
     private final FeedService feedService;
+    private final JwtComponent jwtComponent;
 
     @GetMapping("/post/{id}")
     private ResponseEntity<PostDto> getPost(@PathVariable long id) {
@@ -40,13 +38,15 @@ public class FeedController {
     }
 
     @PostMapping("/post")
-    private ResponseEntity<PostDto> addPost(@Valid @RequestBody PostRequestDto request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(feedService.addPost(request.getContent()).convert());
+    private ResponseEntity<PostDto> addPost(@Valid @RequestBody PostRequestDto request, @CookieValue(name = "jwt", required = false) String token) {
+        User user = jwtComponent.getByToken(token);
+        return ResponseEntity.status(HttpStatus.CREATED).body(feedService.addPost(request.getContent(), user).convert());
     }
 
     @PostMapping("/comment")
-    private ResponseEntity<CommentDto> addComment(@Valid @RequestBody CommentRequestDto request) {
-        return feedService.addCommentTo(request.getId(), request.getContent()).map(Comment::convert).map(comment -> ResponseEntity.status(HttpStatus.CREATED).body(comment)).orElseThrow(() -> new ApiResponseException(HttpStatus.NOT_FOUND, "Пост с ID: {%d} не существует".formatted(request.getId())));
+    private ResponseEntity<CommentDto> addComment(@Valid @RequestBody CommentRequestDto request, @CookieValue(name = "jwt", required = false) String token) {
+        User user = jwtComponent.getByToken(token);
+        return feedService.addCommentTo(request.getId(), request.getContent(), user).map(Comment::convert).map(comment -> ResponseEntity.status(HttpStatus.CREATED).body(comment)).orElseThrow(() -> new ApiResponseException(HttpStatus.NOT_FOUND, "Пост с ID: {%d} не существует".formatted(request.getId())));
     }
 
 }

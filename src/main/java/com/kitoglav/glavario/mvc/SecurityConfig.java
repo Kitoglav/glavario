@@ -26,8 +26,8 @@ public class SecurityConfig {
     private int port;
 
     @Bean
-    public JwtRequestFilter jwtRequestFilter(JwtComponent jwtComponent, UserDetailsService userDetailsService) {
-        return new JwtRequestFilter(jwtComponent, userDetailsService);
+    public JwtRequestFilter jwtRequestFilter(JwtComponent jwtComponent) {
+        return new JwtRequestFilter(jwtComponent);
     }
 
     @Bean

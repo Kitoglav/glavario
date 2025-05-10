@@ -1,7 +1,10 @@
 package com.kitoglav.glavario.services;
 
+import com.kitoglav.glavario.jpa.models.Post;
 import com.kitoglav.glavario.jpa.models.Role;
-import com.kitoglav.glavario.jpa.models.User;
+import com.kitoglav.glavario.jpa.models.user.User;
+import com.kitoglav.glavario.jpa.models.user.UserContent;
+import com.kitoglav.glavario.jpa.models.user.UserOnline;
 import com.kitoglav.glavario.jpa.repository.RoleRepository;
 import com.kitoglav.glavario.jpa.repository.UserRepository;
 import com.kitoglav.glavario.jwt.CookieData;
@@ -33,12 +36,10 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtComponent jwtComponent;
 
-    @Transactional(readOnly = true)
     public Optional<User> getUser(long id) {
         return userRepository.findById(id);
     }
 
-    @Transactional(readOnly = true)
     public Optional<User> getUser(String username) {
         return userRepository.findByUsername(username);
     }
@@ -69,6 +70,8 @@ public class UserService {
         user.setPassword(password);
         Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new ApiResponseException(HttpStatus.INTERNAL_SERVER_ERROR, "Нет подходящей роли: {%s}".formatted("ROLE_USER")));
         user.setRoles(Collections.singleton(role));
+        user.setUserContent(new UserContent());
+        user.setUserOnline(new UserOnline());
         userRepository.save(user);
         return generateCookieData(user);
     }

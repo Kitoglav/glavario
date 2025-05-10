@@ -2,6 +2,7 @@ package com.kitoglav.glavario.jpa.models;
 
 import com.kitoglav.glavario.ApplicationConstants;
 import com.kitoglav.glavario.api.IJpaToDto;
+import com.kitoglav.glavario.jpa.models.user.UserContent;
 import com.kitoglav.glavario.rest.dtos.PostDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,8 +26,10 @@ public class Post implements IJpaToDto<PostDto> {
     private String content;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private User user;
+    @JoinColumn(name = "user_content_id")
+    private UserContent userContent;
 
     public void addComment(Comment comment) {
         comments.add(comment);

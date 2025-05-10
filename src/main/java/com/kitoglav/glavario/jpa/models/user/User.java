@@ -1,7 +1,8 @@
-package com.kitoglav.glavario.jpa.models;
+package com.kitoglav.glavario.jpa.models.user;
 
 import com.kitoglav.glavario.ApplicationConstants;
 import com.kitoglav.glavario.api.IJpaToDto;
+import com.kitoglav.glavario.jpa.models.Role;
 import com.kitoglav.glavario.rest.dtos.UserDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,7 +10,9 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
@@ -29,10 +32,11 @@ public class User implements IJpaToDto<UserDto>, UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts = new ArrayList<>();
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private UserContent userContent;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private UserOnline userOnline;
 
     @Override
     public UserDto convert() {
@@ -44,6 +48,14 @@ public class User implements IJpaToDto<UserDto>, UserDetails {
         return dto;
     }
 
+    public void setUserContent(UserContent userContent) {
+        userContent.setUser(this);
+        this.userContent = userContent;
+    }
+    public void setUserOnline(UserOnline userOnline) {
+        userOnline.setUser(this);
+        this.userOnline = userOnline;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
