@@ -25,7 +25,6 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
-@ControllerAdvice
 @RequestMapping("/api/feed")
 public class FeedController {
     private final FeedService feedService;
@@ -50,20 +49,4 @@ public class FeedController {
         return feedService.addCommentTo(request.getId(), request.getContent()).map(Comment::convert).map(comment -> ResponseEntity.status(HttpStatus.CREATED).body(comment)).orElseThrow(() -> new ApiResponseException(HttpStatus.NOT_FOUND, "Пост с ID: {%d} не существует".formatted(request.getId())));
     }
 
-    @ExceptionHandler(value = ApiResponseException.class)
-    private ApiResponseException handleApiExceptions(ApiResponseException e) {
-        return e;
-    }
-
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private Map<String, String> handleValidationExceptions(MethodArgumentNotValidException e) {
-        Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
-    }
 }
