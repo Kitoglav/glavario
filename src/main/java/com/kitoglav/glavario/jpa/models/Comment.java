@@ -2,6 +2,8 @@ package com.kitoglav.glavario.jpa.models;
 
 import com.kitoglav.glavario.ApplicationConstants;
 import com.kitoglav.glavario.api.IJpaToDto;
+import com.kitoglav.glavario.jpa.models.user.User;
+import com.kitoglav.glavario.jpa.models.user.UserContent;
 import com.kitoglav.glavario.rest.dtos.CommentDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,7 +30,8 @@ public class Comment implements IJpaToDto<CommentDto> {
     private Post parentPost;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private User user;
+    @JoinColumn(name = "user_content_id")
+    private UserContent userContent;
 
     @Override
     public CommentDto convert() {
