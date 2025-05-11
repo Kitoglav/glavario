@@ -70,7 +70,17 @@ public class JwtComponent {
         }
     }
     public User getByToken(String token) {
-        if (token == null || !validateToken(token)) {
+        return getByToken(token, false);
+    }
+        public User getByToken(String token, boolean req) {
+        if(token == null) {
+            if(req) {
+                throw new ApiResponseException(HttpStatus.UNAUTHORIZED, "Нет данных об авторизации");
+            }else {
+                return null;
+            }
+        }
+        if (!validateToken(token)) {
             throw new ApiResponseException(HttpStatus.UNAUTHORIZED, "Недействительный токен");
         }
         String username = getUsernameFromToken(token);

@@ -22,7 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -71,7 +73,10 @@ public class UserService {
         Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new ApiResponseException(HttpStatus.INTERNAL_SERVER_ERROR, "Нет подходящей роли: {%s}".formatted("ROLE_USER")));
         user.setRoles(Collections.singleton(role));
         user.setUserContent(new UserContent());
-        user.setUserOnline(new UserOnline());
+        UserOnline userOnline = new UserOnline();
+        userOnline.setRegisterTime(Timestamp.from(Instant.now()));
+        userOnline.setLastLoginTime(Timestamp.from(Instant.now()));
+        user.setUserOnline(userOnline);
         userRepository.save(user);
         return generateCookieData(user);
     }
@@ -87,6 +92,11 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void updateUserOnline(User user) {
+        getUser(user.getId()).ifPresent(persistentUser -> persistentUser.getUserOnline().setLastLoginTime(Timestamp.from(Instant.now())));
+    }
+
     public ResponseCookie createCookie(String token) {
         return ResponseCookie.from("jwt", token)
                 .httpOnly(true)
@@ -100,7 +110,6 @@ public class UserService {
     private CookieData generateCookieData(UserDetails user, String token) {
         return CookieData.generate(user, jwtComponent, createCookie(token));
     }
-
     public CookieData generateCookieData(UserDetails user) {
         String token = jwtComponent.generateToken(user);
         return generateCookieData(user, token);

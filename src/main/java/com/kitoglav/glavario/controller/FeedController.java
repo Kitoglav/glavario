@@ -39,13 +39,13 @@ public class FeedController {
 
     @PostMapping("/post")
     private ResponseEntity<PostDto> addPost(@Valid @RequestBody PostRequestDto request, @CookieValue(name = "jwt", required = false) String token) {
-        User user = jwtComponent.getByToken(token);
+        User user = jwtComponent.getByToken(token, true);
         return ResponseEntity.status(HttpStatus.CREATED).body(feedService.addPost(request.getContent(), user).convert());
     }
 
     @PostMapping("/comment")
     private ResponseEntity<CommentDto> addComment(@Valid @RequestBody CommentRequestDto request, @CookieValue(name = "jwt", required = false) String token) {
-        User user = jwtComponent.getByToken(token);
+        User user = jwtComponent.getByToken(token, true);
         return feedService.addCommentTo(request.getId(), request.getContent(), user).map(Comment::convert).map(comment -> ResponseEntity.status(HttpStatus.CREATED).body(comment)).orElseThrow(() -> new ApiResponseException(HttpStatus.NOT_FOUND, "Пост с ID: {%d} не существует".formatted(request.getId())));
     }
 
