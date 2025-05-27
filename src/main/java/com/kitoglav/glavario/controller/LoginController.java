@@ -1,34 +1,39 @@
 package com.kitoglav.glavario.controller;
 
 import com.kitoglav.glavario.jwt.CookieData;
+import com.kitoglav.glavario.jwt.JwtComponent;
 import com.kitoglav.glavario.rest.dtos.LoginDto;
 import com.kitoglav.glavario.rest.dtos.RegisterDto;
 import com.kitoglav.glavario.services.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
-@RestController
+@Controller
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class LoginController {
     private final UserService userService;
+    private final JwtComponent jwtComponent;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid RegisterDto dto) {
-        return userService.addUser(dto.getUsername(), dto.getPassword(), dto.getPasswordConfirm()).toResponse();
+    public RedirectView registerUser(@Valid RegisterDto dto, HttpServletResponse response) {
+        userService.addUser(dto.getUsername(), dto.getPassword(), dto.getPasswordConfirm()).respond(response);
+        return new RedirectView("/");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid LoginDto dto) {
-        return userService.loginUser(dto.getUsername(), dto.getPassword()).toResponse();
+    public RedirectView loginUser(@Valid LoginDto dto, HttpServletResponse response) {
+        userService.loginUser(dto.getUsername(), dto.getPassword()).respond(response);
+        return new RedirectView("/");
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser() {
-        return CookieData.NO_COOKIE.toResponse();
+    public void logoutUser(HttpServletResponse response) {
+        CookieData.NO_COOKIE.respond(response);
     }
 }

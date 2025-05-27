@@ -1,6 +1,5 @@
 package com.kitoglav.glavario.services;
 
-import com.kitoglav.glavario.jpa.models.Post;
 import com.kitoglav.glavario.jpa.models.Role;
 import com.kitoglav.glavario.jpa.models.user.User;
 import com.kitoglav.glavario.jpa.models.user.UserContent;
@@ -110,6 +109,7 @@ public class UserService {
     private CookieData generateCookieData(UserDetails user, String token) {
         return CookieData.generate(user, jwtComponent, createCookie(token));
     }
+
     public CookieData generateCookieData(UserDetails user) {
         String token = jwtComponent.generateToken(user);
         return generateCookieData(user, token);

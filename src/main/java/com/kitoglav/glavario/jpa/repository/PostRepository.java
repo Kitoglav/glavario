@@ -1,6 +1,5 @@
 package com.kitoglav.glavario.jpa.repository;
 
-import com.kitoglav.glavario.jpa.models.Comment;
 import com.kitoglav.glavario.jpa.models.Post;
 import com.kitoglav.glavario.jpa.models.user.UserContent;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -2,7 +2,6 @@ package com.kitoglav.glavario.jpa.models;
 
 import com.kitoglav.glavario.ApplicationConstants;
 import com.kitoglav.glavario.api.IJpaToDto;
-import com.kitoglav.glavario.jpa.models.user.User;
 import com.kitoglav.glavario.jpa.models.user.UserContent;
 import com.kitoglav.glavario.rest.dtos.CommentDto;
 import jakarta.persistence.*;

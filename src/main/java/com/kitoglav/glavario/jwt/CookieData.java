@@ -2,13 +2,12 @@ package com.kitoglav.glavario.jwt;
 
 import com.kitoglav.glavario.jpa.models.Role;
 import com.kitoglav.glavario.rest.dtos.RoleDto;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,12 +34,7 @@ public class CookieData {
         return data;
     }
 
-    public ResponseEntity<?> toResponse() {
-        if (this == NO_COOKIE) {
-            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body("No cookie!");
-        }
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, getCookie().toString())
-                .body(Map.of("token", getToken(), "username", getUsername(), "roles", getAuthorities()));
+    public void respond(HttpServletResponse response) {
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }
