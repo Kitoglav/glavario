@@ -1,18 +1,227 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Spring Security Example</title>
+    <title>Glavario</title>
+    <link rel="stylesheet" href="/styles/home.css">
+    <link rel="stylesheet" href="/styles/post.css">
+    <style>
+        /* Стили для блока комментариев */
+        .comments-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* Стилизация скроллбара */
+        .comments-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .comments-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .comments-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        .comments-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Ограничение видимых комментариев */
+        .comment {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .comment:nth-child(n+4) {
+            display: none;
+        }
+
+        /* Кнопка "Показать еще" */
+        .show-more-btn {
+            display: block;
+            text-align: center;
+            color: #4680c2;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .show-more-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Состояние "все комментарии показаны" */
+        .comments-expanded .comment {
+            display: flex !important;
+        }
+        .comments-expanded .show-more-btn {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<h1>Welcome!</h1>
-<p>Lorem Ipsum</p>
-<p><a href="/profile">Profile</a></p>
-<p><a href="/login">Login</a></p>
-<p><a href="/register">Register</a></p>
-<a href="#" onclick="logout()">Logout</a>
-</body>
+<div class="header">
+    <div class="logo">
+        <a href="/">
+            <img src="/images/logo.png" alt="Glavario">
+        </a>
+    </div>
+    <div class="nav">
+        <a href="/profile" th:if="${auth}">Profile</a>
+        <a href="/login" th:unless="${auth}">Login</a>
+        <a href="/register" th:unless="${auth}">Register</a>
+        <a href="/" onclick="logout(); return false;" th:if="${auth}" class="logout-btn">Logout</a>
+    </div>
+</div>
+
+<div class="content">
+    <div class="user-info" th:if="${auth}">
+        Welcome, <span th:text="${username}"></span>!
+    </div>
+
+    <!-- Форма создания нового поста -->
+    <div class="post-form" th:if="${auth}">
+        <form id="newPostForm">
+            <textarea name="content" placeholder="What's on your mind?"
+                      maxlength="500" required></textarea>
+            <button type="submit">Post</button>
+        </form>
+    </div>
+
+    <!-- Список постов -->
+    <div class="posts-container" th:each="post : ${posts.content}">
+        <div class="post" th:attr="data-post-id=${post.id}">
+            <div class="post-header">
+                <div class="avatar-placeholder"></div>
+                <div class="post-author">
+                    <span th:text="${post.username}"></span>
+                    <div class="post-time" th:text="${#temporals.format(post.postTime, 'dd MMM yyyy HH:mm')}"></div>
+                </div>
+            </div>
+
+            <div class="post-content" th:text="${post.content}"></div>
+
+            <div class="post-actions">
+                <button class="like-btn">Like</button>
+                <button class="comment-btn" onclick="toggleComments(this)">Comment</button>
+            </div>
+
+            <!-- Комментарии -->
+            <div class="comments-container" style="display: none;">
+                <div class="comments-list">
+                    <div class="comment" th:each="comment : ${post.comments}">
+                        <div class="avatar-placeholder small"></div>
+                        <div class="comment-content">
+                            <div class="comment-author" th:text="${comment.username}"></div>
+                            <div class="comment-text" th:text="${comment.content}"></div>
+                            <div class="comment-time" th:text="${#temporals.format(comment.postTime, 'dd MMM HH:mm')}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка "Показать еще" -->
+                    <div class="show-more-btn"
+                         th:if="${#lists.size(post.comments) > 3}"
+                         onclick="expandComments(this)">
+                        Show all (<span th:text="${#lists.size(post.comments) - 3}"></span> more)
+                    </div>
+                </div>
+
+                <!-- Форма добавления комментария -->
+                <form class="comment-form" th:if="${auth}">
+                    <input type="text" name="content" placeholder="Write a comment..." required>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination">
+        <a th:if="${!posts.first}" th:href="@{/(page=${posts.number-1})}">Previous</a>
+        <span th:text="${posts.number+1 + ' of ' + posts.totalPages}"></span>
+        <a th:if="${!posts.last}" th:href="@{/(page=${posts.number+1})}">Next</a>
+    </div>
+</div>
 
 <script>
+    // Обработка создания нового поста
+    document.getElementById('newPostForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const content = this.content.value;
+
+        try {
+            const response = await fetch('/api/feed/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                alert(error.detail || 'Failed to create post');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        }
+    });
+
+    // Обработка добавления комментария
+    document.querySelectorAll('.comment-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const postId = this.closest('.post').dataset.postId;
+            const content = this.content.value;
+
+            try {
+                const response = await fetch('/api/feed/comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: postId,
+                        content
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || 'Failed to add comment');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Network error. Please try again.');
+            }
+        });
+    });
+
+    // Переключение видимости комментариев
+    function toggleComments(button) {
+        const commentsContainer = button.closest('.post-actions').nextElementSibling;
+        const isHidden = commentsContainer.style.display === 'none';
+        commentsContainer.style.display = isHidden ? 'block' : 'none';
+
+        // Сброс состояния при закрытии
+        if (!isHidden) {
+            commentsContainer.classList.remove('comments-expanded');
+        }
+    }
+
+    // Показать все комментарии
+    function expandComments(button) {
+        const commentsContainer = button.closest('.comments-container');
+        commentsContainer.classList.add('comments-expanded');
+    }
+
+    // Выход из системы
     function logout() {
         fetch('/api/auth/logout', {
             method: 'POST',
@@ -21,8 +230,14 @@
             },
             body: JSON.stringify({})
         })
-            .catch(error => console.error('Ошибка:', error));
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/';
+                }
+            })
+            .catch(error => console.error('Error:', error));
         return false;
     }
 </script>
+</body>
 </html>

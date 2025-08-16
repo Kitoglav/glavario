@@ -69,14 +69,16 @@ public class JwtComponent {
             return false;
         }
     }
+
     public User getByToken(String token) {
         return getByToken(token, false);
     }
-        public User getByToken(String token, boolean req) {
-        if(token == null) {
-            if(req) {
+
+    public User getByToken(String token, boolean req) {
+        if (token == null) {
+            if (req) {
                 throw new ApiResponseException(HttpStatus.UNAUTHORIZED, "Нет данных об авторизации");
-            }else {
+            } else {
                 return null;
             }
         }

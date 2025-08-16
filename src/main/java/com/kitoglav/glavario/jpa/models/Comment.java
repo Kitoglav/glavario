@@ -2,7 +2,6 @@ package com.kitoglav.glavario.jpa.models;
 
 import com.kitoglav.glavario.ApplicationConstants;
 import com.kitoglav.glavario.api.IJpaToDto;
-import com.kitoglav.glavario.jpa.models.user.User;
 import com.kitoglav.glavario.jpa.models.user.UserContent;
 import com.kitoglav.glavario.rest.dtos.CommentDto;
 import jakarta.persistence.*;
@@ -38,7 +37,8 @@ public class Comment implements IJpaToDto<CommentDto> {
         CommentDto dto = new CommentDto();
         dto.setId(this.id);
         dto.setContent(this.content);
-        dto.setPostTime(this.postTime);
+        dto.setPostTime(this.postTime.toLocalDateTime());
+        dto.setUsername(this.userContent.getUser().getUsername());
         dto.setParentPostId(this.parentPost.getId());
         return dto;
     }

@@ -32,6 +32,7 @@ public class UserContent {
         post.setUserContent(this);
         this.posts.add(post);
     }
+
     public void addComment(Comment comment) {
         comment.setUserContent(this);
         this.comments.add(comment);
