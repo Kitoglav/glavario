@@ -1,7 +1,10 @@
 package com.kitoglav.glavario.services;
 
+import com.kitoglav.glavario.jpa.models.Post;
 import com.kitoglav.glavario.jpa.models.Role;
-import com.kitoglav.glavario.jpa.models.User;
+import com.kitoglav.glavario.jpa.models.user.User;
+import com.kitoglav.glavario.jpa.models.user.UserContent;
+import com.kitoglav.glavario.jpa.models.user.UserOnline;
 import com.kitoglav.glavario.jpa.repository.RoleRepository;
 import com.kitoglav.glavario.jpa.repository.UserRepository;
 import com.kitoglav.glavario.jwt.CookieData;
@@ -19,7 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -33,12 +38,10 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtComponent jwtComponent;
 
-    @Transactional(readOnly = true)
     public Optional<User> getUser(long id) {
         return userRepository.findById(id);
     }
 
-    @Transactional(readOnly = true)
     public Optional<User> getUser(String username) {
         return userRepository.findByUsername(username);
     }
@@ -69,6 +72,11 @@ public class UserService {
         user.setPassword(password);
         Role role = roleRepository.findByName("ROLE_USER").orElseThrow(() -> new ApiResponseException(HttpStatus.INTERNAL_SERVER_ERROR, "Нет подходящей роли: {%s}".formatted("ROLE_USER")));
         user.setRoles(Collections.singleton(role));
+        user.setUserContent(new UserContent());
+        UserOnline userOnline = new UserOnline();
+        userOnline.setRegisterTime(Timestamp.from(Instant.now()));
+        userOnline.setLastLoginTime(Timestamp.from(Instant.now()));
+        user.setUserOnline(userOnline);
         userRepository.save(user);
         return generateCookieData(user);
     }
@@ -84,6 +92,11 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void updateUserOnline(User user) {
+        getUser(user.getId()).ifPresent(persistentUser -> persistentUser.getUserOnline().setLastLoginTime(Timestamp.from(Instant.now())));
+    }
+
     public ResponseCookie createCookie(String token) {
         return ResponseCookie.from("jwt", token)
                 .httpOnly(true)
@@ -97,7 +110,6 @@ public class UserService {
     private CookieData generateCookieData(UserDetails user, String token) {
         return CookieData.generate(user, jwtComponent, createCookie(token));
     }
-
     public CookieData generateCookieData(UserDetails user) {
         String token = jwtComponent.generateToken(user);
         return generateCookieData(user, token);

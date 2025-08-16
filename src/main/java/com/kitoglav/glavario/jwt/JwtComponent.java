@@ -1,12 +1,17 @@
 package com.kitoglav.glavario.jwt;
 
 import com.kitoglav.glavario.jpa.models.Role;
+import com.kitoglav.glavario.jpa.models.user.User;
+import com.kitoglav.glavario.rest.ApiResponseException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -16,12 +21,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class JwtComponent {
     @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.expiration}")
     private Long expiration;
+    private final UserDetailsService userDetailsService;
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
@@ -61,5 +68,22 @@ public class JwtComponent {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+    public User getByToken(String token) {
+        return getByToken(token, false);
+    }
+        public User getByToken(String token, boolean req) {
+        if(token == null) {
+            if(req) {
+                throw new ApiResponseException(HttpStatus.UNAUTHORIZED, "Нет данных об авторизации");
+            }else {
+                return null;
+            }
+        }
+        if (!validateToken(token)) {
+            throw new ApiResponseException(HttpStatus.UNAUTHORIZED, "Недействительный токен");
+        }
+        String username = getUsernameFromToken(token);
+        return (User) userDetailsService.loadUserByUsername(username);
     }
 }

@@ -2,6 +2,7 @@ package com.kitoglav.glavario.mvc;
 
 import com.kitoglav.glavario.jwt.JwtComponent;
 import com.kitoglav.glavario.jwt.JwtRequestFilter;
+import com.kitoglav.glavario.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +27,8 @@ public class SecurityConfig {
     private int port;
 
     @Bean
-    public JwtRequestFilter jwtRequestFilter(JwtComponent jwtComponent, UserDetailsService userDetailsService) {
-        return new JwtRequestFilter(jwtComponent, userDetailsService);
+    public JwtRequestFilter jwtRequestFilter(JwtComponent jwtComponent, UserService userService) {
+        return new JwtRequestFilter(jwtComponent, userService);
     }
 
     @Bean
