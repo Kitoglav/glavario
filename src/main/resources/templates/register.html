@@ -1,12 +1,48 @@
-<form action="/api/auth/register" method="post">
-    <label>
-        <input type="text" name="username" placeholder="Username" required>
-    </label>
-    <label>
-        <input type="password" name="password" placeholder="Password" required>
-    </label>
-    <label>
-        <input type="password" name="passwordConfirm" placeholder="Repeat Password" required>
-    </label>
-    <button type="submit">Register</button>
-</form>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Glavario - Register</title>
+    <link rel="stylesheet" href="/styles/home.css">
+    <link rel="stylesheet" href="/styles/auth.css">
+</head>
+<body>
+<div class="header">
+    <div class="logo">
+    <a href="/">
+        <img src="/images/logo.png" alt="Glavario">
+    </a>
+</div>
+    <div class="nav">
+        <a href="/login">Login</a>
+        <a href="/register" class="active">Register</a>
+    </div>
+</div>
+
+<div class="auth-container">
+    <h1 class="auth-title">Create new account</h1>
+
+    <!-- Блок для отображения ошибок -->
+    <div th:if="${error}" class="error-message" th:text="${error}"></div>
+
+    <form class="auth-form" th:action="@{/api/auth/register}" method="post">
+        <label>
+            Username
+            <input type="text" name="username" placeholder="Choose a username"
+                   th:value="${username}" required>
+        </label>
+        <label>
+            Password
+            <input type="password" name="password" placeholder="Create a password" required>
+        </label>
+        <label>
+            Confirm Password
+            <input type="password" name="passwordConfirm" placeholder="Repeat your password" required>
+        </label>
+        <button type="submit">Register</button>
+        <div class="auth-link">
+            Already have an account? <a href="/login">Login</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

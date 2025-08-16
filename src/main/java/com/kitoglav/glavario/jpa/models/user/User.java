@@ -52,10 +52,12 @@ public class User implements IJpaToDto<UserDto>, UserDetails {
         userContent.setUser(this);
         this.userContent = userContent;
     }
+
     public void setUserOnline(UserOnline userOnline) {
         userOnline.setUser(this);
         this.userOnline = userOnline;
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;

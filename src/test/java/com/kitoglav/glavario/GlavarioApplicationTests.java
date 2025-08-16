@@ -1,5 +1,7 @@
 package com.kitoglav.glavario;
 
+import com.kitoglav.glavario.jpa.repository.PostRepository;
+import com.kitoglav.glavario.services.FeedService;
 import com.kitoglav.glavario.services.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Encoders;
@@ -15,13 +17,15 @@ import javax.crypto.SecretKey;
 class GlavarioApplicationTests {
 
     @Autowired
+    private FeedService feedService;
+    @Autowired
     private UserService userService;
 
     @Test
     void contextLoads() {
-        SecretKey key = Jwts.SIG.HS512.key().build();
-        String base64Key = Encoders.BASE64.encode(key.getEncoded());
-        System.out.println(base64Key);
+        userService.getUser(3).ifPresent(user -> {
+            feedService.addPost("Новый пост", user);
+        });
     }
 
 }

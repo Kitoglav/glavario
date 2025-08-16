@@ -3,13 +3,18 @@ package com.kitoglav.glavario.jpa.models;
 import com.kitoglav.glavario.ApplicationConstants;
 import com.kitoglav.glavario.api.IJpaToDto;
 import com.kitoglav.glavario.jpa.models.user.UserContent;
+import com.kitoglav.glavario.rest.dtos.CommentDto;
 import com.kitoglav.glavario.rest.dtos.PostDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -41,7 +46,9 @@ public class Post implements IJpaToDto<PostDto> {
         PostDto dto = new PostDto();
         dto.setId(this.id);
         dto.setContent(this.content);
-        dto.setPostTime(this.postTime);
+        dto.setPostTime(this.postTime.toLocalDateTime());
+        dto.setUsername(this.userContent.getUser().getUsername());
+        dto.setComments(this.comments.stream().map(Comment::convert).sorted(Comparator.comparing(CommentDto::getPostTime).reversed()).toList());
         return dto;
     }
 }
