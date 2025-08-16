@@ -37,7 +37,8 @@ public class Comment implements IJpaToDto<CommentDto> {
         CommentDto dto = new CommentDto();
         dto.setId(this.id);
         dto.setContent(this.content);
-        dto.setPostTime(this.postTime);
+        dto.setPostTime(this.postTime.toLocalDateTime());
+        dto.setUsername(this.userContent.getUser().getUsername());
         dto.setParentPostId(this.parentPost.getId());
         return dto;
     }
