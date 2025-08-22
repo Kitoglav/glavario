@@ -1,6 +1,5 @@
 package com.kitoglav.glavario.beans;
 
-import com.kitoglav.glavario.jpa.models.Post;
 import com.kitoglav.glavario.jpa.models.user.User;
 import com.kitoglav.glavario.jwt.JwtComponent;
 import com.kitoglav.glavario.rest.dtos.PostDto;
