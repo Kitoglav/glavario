@@ -1,7 +1,6 @@
 package com.kitoglav.glavario.controller;
 
 import com.kitoglav.glavario.beans.ModelUtil;
-import com.kitoglav.glavario.jwt.JwtComponent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

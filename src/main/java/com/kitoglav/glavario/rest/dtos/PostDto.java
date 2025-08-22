@@ -2,9 +2,7 @@ package com.kitoglav.glavario.rest.dtos;
 
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.temporal.Temporal;
 import java.util.List;
 
 @Data
